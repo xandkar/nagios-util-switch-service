@@ -7,6 +7,15 @@ import sys
 import shutil
 
 
+USAGE_MSG = '\n'.join(
+    [
+        'USAGE:',
+        '------',
+        '%s <DIRECTORY_PATH> <SERVICE_NAME> [on|off]' % __file__
+    ]
+)
+
+
 class State():
     def __init__(self):
         self.in_block = False
@@ -78,7 +87,12 @@ def get_service_blocks(file_lines):
 
 def main():
     # Parse arguments
-    target_dir_path, target_service, desired_state = sys.argv[1:4]
+    try:
+        target_dir_path, target_service, desired_state = sys.argv[1:4]
+        if not desired_state in ['on', 'off']:
+            raise
+    except:
+        sys.exit(USAGE_MSG)
 
     # Filter directory contents
     target_dir_contents = os.listdir(target_dir_path)
@@ -87,9 +101,6 @@ def main():
     # Main loop
     for file_name in target_file_names:
         file_path = os.path.join(target_dir_path, file_name)
-
-        if not desired_state in ['on', 'off']:
-            sys.exit('INVALID STATE')
 
         # Read original file, striping trailing whitespace
         original_file_lines = [l.rstrip() for l in open(file_path).readlines()]
