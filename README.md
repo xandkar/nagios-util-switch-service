@@ -19,9 +19,9 @@ Usage
 
 Limitations
 ===========
-    * Does not handle service dependencies
-    * Does not target a particular instance of service usage,
-      but blanket-targets all blocks that 'use service'
+* Does not handle service dependencies
+* Does not target a particular instance of service usage,
+  but blanket-targets all blocks that 'use service'
 
 
 Roadmap
