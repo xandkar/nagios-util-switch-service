@@ -14,7 +14,7 @@ that effort when I can make it general, reproducible and reversible?
 
 Usage
 =====
-nagios-switch-service.py <CFG_DIRECTORY_PATH> <SERVICE_NAME> [on|off]
+    nagios-switch-service.py <CFG_DIRECTORY_PATH> <SERVICE_NAME> [on|off]
 
 
 Limitations
