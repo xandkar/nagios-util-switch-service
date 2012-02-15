@@ -5,6 +5,7 @@ import re
 import os
 import sys
 import shutil
+import datetime
 
 
 USAGE_MSG = '\n'.join(
@@ -98,6 +99,12 @@ def main():
     target_dir_contents = os.listdir(target_dir_path)
     target_file_names = [f for f in target_dir_contents if f.endswith('.cfg')]
 
+    # Backup target directory
+    shutil.copytree(
+        target_dir_path,
+        '%s.bak.%s' % (target_dir_path, datetime.datetime.now().isoformat())
+    )
+
     # Main loop
     for file_name in target_file_names:
         file_path = os.path.join(target_dir_path, file_name)
@@ -124,9 +131,6 @@ def main():
                     elif desired_state == 'on':
                         new_file_lines[index] = \
                             original_file_lines[index].replace('#', '')
-
-        # Backup original file
-        shutil.copy2(file_path, '%s.bak' % file_path)
 
         # Write new lines to original file
         try:
