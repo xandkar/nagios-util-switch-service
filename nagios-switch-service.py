@@ -80,7 +80,12 @@ def main():
     # Parse arguments
     target_dir_path, target_service, desired_state = sys.argv[1:4]
 
-    for file_name in os.listdir(target_dir_path):
+    # Filter directory contents
+    target_dir_contents = os.listdir(target_dir_path)
+    target_file_names = [f for f in target_dir_contents if f.endswith('.cfg')]
+
+    # Main loop
+    for file_name in target_file_names:
         file_path = os.path.join(target_dir_path, file_name)
 
         if not desired_state in ['on', 'off']:
