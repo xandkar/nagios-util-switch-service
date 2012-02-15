@@ -8,13 +8,10 @@ import shutil
 import datetime
 
 
-USAGE_MSG = '\n'.join(
-    [
-        'USAGE:',
-        '------',
-        '%s <CFG_DIRECTORY_PATH> <SERVICE_NAME> [on|off]' % __file__
-    ]
-)
+USAGE = \
+'''
+USAGE: <EXECUTABLE> <CFG_DIRECTORY_PATH> <SERVICE_NAME> [on|off]
+'''
 
 
 class State():
@@ -115,7 +112,7 @@ def main():
         if not desired_state in ['on', 'off']:
             raise
     except:
-        sys.exit(USAGE_MSG)
+        sys.exit(USAGE.replace('<EXECUTABLE>', __file__))
 
     # Filter directory contents
     target_dir_contents = os.listdir(target_dir_path)
