@@ -6,8 +6,8 @@ Description
 Comments a Nagios service block in/out in all .cfg files in a given directory.
 
 
-Why?
-====
+Background
+==========
 I was supposed to comment-out a service check on 100+ hosts, so why waste all
 that effort when I can make it general, reproducible and reversible?
 
