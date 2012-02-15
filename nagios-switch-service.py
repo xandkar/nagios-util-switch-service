@@ -42,8 +42,16 @@ def get_service_blocks(file_lines):
         line_number += 1
         line = line.strip()
 
+        ##### Enter block #####
+        if re.match(pattern_block_begin, line):
+            # Collect line number
+            state.block_lines.append(line_number)
+
+            # Set state
+            state.in_block = True
+
         ##### Exit block #####
-        if re.match(pattern_block_end, line):
+        elif re.match(pattern_block_end, line):
             # Collect line number
             state.block_lines.append(line_number)
 
@@ -56,7 +64,7 @@ def get_service_blocks(file_lines):
             state = State()
 
         ##### Inside block #####
-        if state.in_block:
+        elif state.in_block:
             # Collect line number
             state.block_lines.append(line_number)
 
@@ -65,14 +73,6 @@ def get_service_blocks(file_lines):
 
             if key == 'use':
                 state.block_name = value
-
-        ##### Enter block #####
-        if re.match(pattern_block_begin, line):
-            # Collect line number
-            state.block_lines.append(line_number)
-
-            # Set state
-            state.in_block = True
 
     return blocks
 
