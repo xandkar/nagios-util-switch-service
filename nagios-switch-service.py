@@ -86,6 +86,28 @@ def get_service_blocks(file_lines):
     return blocks
 
 
+def get_new_lines(original_lines, service_blocks, target_service,
+                                                                desired_state):
+    # Initialize lines
+    new_lines = original_lines
+
+    # Modify appropriate lines
+    for block in service_blocks:
+        if block.name == target_service:
+            for line_number in block.lines:
+                index = line_number - 1  # Correct for 0-indexed list
+
+                if desired_state == 'off' \
+                and not original_lines[index].startswith('#'):
+                    new_lines[index] = \
+                        '#%s' % original_lines[index]
+                elif desired_state == 'on':
+                    new_lines[index] = \
+                        original_lines[index].replace('#', '')
+
+    return new_lines
+
+
 def main():
     # Parse arguments
     try:
@@ -110,32 +132,23 @@ def main():
         file_path = os.path.join(target_dir_path, file_name)
 
         # Read original file, striping trailing whitespace
-        original_file_lines = [l.rstrip() for l in open(file_path).readlines()]
+        original_lines = [l.rstrip() for l in open(file_path).readlines()]
 
         # Parse into service blocks
-        service_blocks = get_service_blocks(original_file_lines)
+        service_blocks = get_service_blocks(original_lines)
 
-        # Initialize new file content
-        new_file_lines = original_file_lines
-
-        # Modify appropriate lines
-        for block in service_blocks:
-            if block.name == target_service:
-                for line_number in block.lines:
-                    index = line_number - 1  # Correct for 0-indexed list
-
-                    if desired_state == 'off' \
-                    and not original_file_lines[index].startswith('#'):
-                        new_file_lines[index] = \
-                            '#%s' % original_file_lines[index]
-                    elif desired_state == 'on':
-                        new_file_lines[index] = \
-                            original_file_lines[index].replace('#', '')
+        # Generate new lines
+        new_lines = get_new_lines(
+            original_lines,
+            service_blocks,
+            target_service,
+            desired_state
+        )
 
         # Write new lines to original file
         try:
             new_file = open(file_path, 'wb')
-            new_file.writelines('\n'.join(new_file_lines))
+            new_file.writelines('\n'.join(new_lines))
         finally:
             new_file.close()
 
