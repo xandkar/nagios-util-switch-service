@@ -2,6 +2,7 @@
 
 import re
 import sys
+import shutil
 
 
 class State():
@@ -17,7 +18,7 @@ class Block():
         self.lines = lines
 
 
-def get_blocks(cfg_file_lines):
+def get_service_blocks(file_lines):
     pattern_block_begin = re.compile(r'^define\ service[\ |\{]')
     pattern_block_end   = re.compile(r'^\}')
 
@@ -28,13 +29,13 @@ def get_blocks(cfg_file_lines):
     line_number = 0
     state = State()
 
-    for line in cfg_file_lines:
+    for line in file_lines:
         line_number += 1
         line = line.strip()
 
-        #----------------------------------------------------------------------
+        #
         # Exit block
-        #----------------------------------------------------------------------
+        #
         if re.match(pattern_block_end, line):
             # Collect line number
             state.block_lines.append(line_number)
@@ -47,9 +48,9 @@ def get_blocks(cfg_file_lines):
             # Reset state
             state = State()
 
-        #----------------------------------------------------------------------
+        #
         # In block
-        #----------------------------------------------------------------------
+        #
         if state.in_block:
             # Collect line number
             state.block_lines.append(line_number)
@@ -60,9 +61,9 @@ def get_blocks(cfg_file_lines):
             if key == 'use':
                 state.block_name = value
 
-        #----------------------------------------------------------------------
+        #
         # Enter block
-        #----------------------------------------------------------------------
+        #
         if re.match(pattern_block_begin, line):
             # Collect line number
             state.block_lines.append(line_number)
@@ -74,14 +75,43 @@ def get_blocks(cfg_file_lines):
 
 
 def main():
-    file_path = sys.argv[1]
-    cfg_file_lines = open(file_path).readlines()
-    blocks = get_blocks(cfg_file_lines)
+    # Parse arguments
+    file_path, target_service, desired_state = sys.argv[1:4]
 
-    for block in blocks:
-        print block.name
-        print block.lines
-        print
+    if not desired_state in ['on', 'off']:
+        sys.exit('INVALID STATE')
+
+    # Read original file, striping trailing whitespace
+    original_file_lines = [l.rstrip() for l in open(file_path).readlines()]
+
+    # Parse into service blocks
+    service_blocks = get_service_blocks(original_file_lines)
+
+    # Initialize new file content
+    new_file_lines = original_file_lines
+
+    # Modify appropriate lines
+    for block in service_blocks:
+        if block.name == target_service:
+            for line_number in block.lines:
+                index = line_number - 1  # Correct for 0-indexed list
+
+                if desired_state == 'off' \
+                and not original_file_lines[index].startswith('#'):
+                    new_file_lines[index] = '#%s' % original_file_lines[index]
+                elif desired_state == 'on':
+                    new_file_lines[index] = \
+                        original_file_lines[index].replace('#', '')
+
+    # Backup original file
+    shutil.copy2(file_path, '%s.bak' % file_path)
+
+    # Write new lines to original file
+    try:
+        new_file = open(file_path, 'wb')
+        new_file.writelines('\n'.join(new_file_lines))
+    finally:
+        new_file.close()
 
 
 if __name__ == '__main__':
