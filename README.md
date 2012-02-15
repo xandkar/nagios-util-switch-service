@@ -17,6 +17,12 @@ Usage
     nagios-switch-service.py <CFG_DIRECTORY_PATH> <SERVICE_NAME> [on|off]
 
 
+Safety-first! :)
+================
+Before making any changes, it will clone the entire DIRECTORY as
+DIRECTORY.bak.ISO8601-TIMESTAMP
+
+
 Limitations
 ===========
 * Does not handle service dependencies
