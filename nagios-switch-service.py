@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
+
 import re
+import os
 import sys
 import shutil
 
@@ -76,42 +78,46 @@ def get_service_blocks(file_lines):
 
 def main():
     # Parse arguments
-    file_path, target_service, desired_state = sys.argv[1:4]
+    target_dir_path, target_service, desired_state = sys.argv[1:4]
 
-    if not desired_state in ['on', 'off']:
-        sys.exit('INVALID STATE')
+    for file_name in os.listdir(target_dir_path):
+        file_path = os.path.join(target_dir_path, file_name)
 
-    # Read original file, striping trailing whitespace
-    original_file_lines = [l.rstrip() for l in open(file_path).readlines()]
+        if not desired_state in ['on', 'off']:
+            sys.exit('INVALID STATE')
 
-    # Parse into service blocks
-    service_blocks = get_service_blocks(original_file_lines)
+        # Read original file, striping trailing whitespace
+        original_file_lines = [l.rstrip() for l in open(file_path).readlines()]
 
-    # Initialize new file content
-    new_file_lines = original_file_lines
+        # Parse into service blocks
+        service_blocks = get_service_blocks(original_file_lines)
 
-    # Modify appropriate lines
-    for block in service_blocks:
-        if block.name == target_service:
-            for line_number in block.lines:
-                index = line_number - 1  # Correct for 0-indexed list
+        # Initialize new file content
+        new_file_lines = original_file_lines
 
-                if desired_state == 'off' \
-                and not original_file_lines[index].startswith('#'):
-                    new_file_lines[index] = '#%s' % original_file_lines[index]
-                elif desired_state == 'on':
-                    new_file_lines[index] = \
-                        original_file_lines[index].replace('#', '')
+        # Modify appropriate lines
+        for block in service_blocks:
+            if block.name == target_service:
+                for line_number in block.lines:
+                    index = line_number - 1  # Correct for 0-indexed list
 
-    # Backup original file
-    shutil.copy2(file_path, '%s.bak' % file_path)
+                    if desired_state == 'off' \
+                    and not original_file_lines[index].startswith('#'):
+                        new_file_lines[index] = \
+                            '#%s' % original_file_lines[index]
+                    elif desired_state == 'on':
+                        new_file_lines[index] = \
+                            original_file_lines[index].replace('#', '')
 
-    # Write new lines to original file
-    try:
-        new_file = open(file_path, 'wb')
-        new_file.writelines('\n'.join(new_file_lines))
-    finally:
-        new_file.close()
+        # Backup original file
+        shutil.copy2(file_path, '%s.bak' % file_path)
+
+        # Write new lines to original file
+        try:
+            new_file = open(file_path, 'wb')
+            new_file.writelines('\n'.join(new_file_lines))
+        finally:
+            new_file.close()
 
 
 if __name__ == '__main__':
