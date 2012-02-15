@@ -28,8 +28,8 @@ class Block():
 
 
 def get_service_blocks(file_lines):
-    pattern_block_begin = re.compile(r'^define\ service[\ |\{]')
-    pattern_block_end   = re.compile(r'^\}')
+    pattern_block_begin = re.compile(r'.*define\ service[\ |\{].*')
+    pattern_block_end   = re.compile(r'.*\}.*')
 
     # Collection
     blocks = []
@@ -65,7 +65,7 @@ def get_service_blocks(file_lines):
             state.block_lines.append(line_number)
 
             # Collect data
-            key, value = line.split()[:2]
+            key, value = line.replace('#', '').split()[:2]
 
             if key == 'use':
                 state.block_name = value
