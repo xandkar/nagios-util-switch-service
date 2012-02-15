@@ -12,7 +12,7 @@ USAGE_MSG = '\n'.join(
     [
         'USAGE:',
         '------',
-        '%s <DIRECTORY_PATH> <SERVICE_NAME> [on|off]' % __file__
+        '%s <CFG_DIRECTORY_PATH> <SERVICE_NAME> [on|off]' % __file__
     ]
 )
 
